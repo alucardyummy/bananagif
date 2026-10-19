@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>bananagif · deixe seu GIF no tamanho que você precisa</title>
+<meta name="description" content="Diga o tamanho final e o bananagif encontra a melhor qualidade que cabe nele. Tudo roda no seu aparelho: o GIF não é enviado para lugar nenhum.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/libre-caslon-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/libre-caslon-text-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script>
+  // Tema antes da primeira pintura (evita piscar): escolha guardada, senão o do aparelho.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('bananagif-theme'); } catch (e) {}
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+</head>
+<body>
+
+<!-- Feixe de luz: uma janela de quatro vidraças no alto, projetando-se na página -->
+<div class="beam" aria-hidden="true">
+  <svg viewBox="0 0 800 960" preserveAspectRatio="xMinYMin meet" focusable="false">
+    <defs>
+      <linearGradient id="fall" gradientUnits="userSpaceOnUse" x1="150" y1="110" x2="720" y2="820">
+        <stop offset="0" stop-color="var(--glow)" stop-opacity=".95"/>
+        <stop offset=".45" stop-color="var(--glow)" stop-opacity=".5"/>
+        <stop offset="1" stop-color="var(--glow)" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur stdDeviation="3.2"/>
+      </filter>
+    </defs>
+    <g filter="url(#soft)" fill="url(#fall)">
+      <polygon points="96,40 146,40 586.4,462.0 586.4,686.4 416.4,686.4 96,106"/>
+      <polygon points="96,114 146,114 586.4,713.6 586.4,938.0 416.4,938.0 96,180"/>
+      <polygon points="154,40 204,40 783.6,462.0 783.6,686.4 613.6,686.4 154,106"/>
+      <polygon points="154,114 204,114 783.6,713.6 783.6,938.0 613.6,938.0 154,180"/>
+    </g>
+  </svg>
+</div>
+
+<div class="page">
+  <header>
+    <span class="mark">bananagif</span>
+    <button class="theme" id="theme" type="button" aria-label="Trocar entre tema claro e escuro">
+      <svg class="i-sun" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+      <svg class="i-moon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    </button>
+  </header>
+
+  <main id="app" data-state="idle">
+    <section class="hero">
+      <h1>Seu GIF,<br>mais leve.</h1>
+      <p class="lede">Diga o tamanho que você precisa. O bananagif procura a melhor qualidade que cabe nele.</p>
+    </section>
+
+    <!-- Nicho: onde o GIF entra -->
+    <section class="stage" id="stage">
+      <label class="niche" id="drop" for="file">
+        <svg class="rosette" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+          <circle cx="22" cy="22" r="20.5"/>
+          <g>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(45 22 22)"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(90 22 22)"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(135 22 22)"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(180 22 22)"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(225 22 22)"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(270 22 22)"/>
+            <ellipse cx="22" cy="11.5" rx="3.6" ry="7.5" transform="rotate(315 22 22)"/>
+          </g>
+          <circle cx="22" cy="22" r="3.2"/>
+        </svg>
+
+        <span class="niche-empty" id="empty">
+          <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/><path d="M16 8 2 22"/><path d="M17.5 15H9"/></svg>
+          <span class="niche-title">Toque para escolher um GIF</span>
+          <span class="niche-sub">ou solte o arquivo aqui</span>
+        </span>
+
+        <img id="preview" alt="Prévia do GIF escolhido" hidden>
+        <input id="file" class="sr" type="file" accept="image/gif,.gif">
+      </label>
+
+      <p class="fileinfo" id="fileinfo" hidden>
+        <span class="fname" id="fname"></span>
+        <span class="fmeta" id="fmeta"></span>
+        <button type="button" class="link" id="change">Trocar GIF</button>
+      </p>
+    </section>
+
+    <!-- Escolhas -->
+    <form class="controls" id="controls" autocomplete="off" novalidate>
+      <div class="field">
+        <label class="label" for="size">Tamanho final</label>
+        <div class="size-row">
+          <input class="num" id="size" type="text" inputmode="decimal" value="220" aria-describedby="size-hint" maxlength="6">
+          <div class="units" role="group" aria-label="Unidade">
+            <button type="button" id="u-kb" aria-pressed="true">KB</button>
+            <button type="button" id="u-mb" aria-pressed="false">MB</button>
+          </div>
+        </div>
+        <div class="chips" id="chips" role="group" aria-label="Tamanhos comuns">
+          <button type="button" data-bytes="100000">100 KB</button>
+          <button type="button" data-bytes="220000">220 KB</button>
+          <button type="button" data-bytes="500000">500 KB</button>
+          <button type="button" data-bytes="1000000">1 MB</button>
+        </div>
+        <p class="hint" id="size-hint">O GIF final nunca passa desse tamanho.</p>
+      </div>
+
+      <div class="field">
+        <label class="label" for="maxw">Largura máxima</label>
+        <div class="w-row">
+          <input class="num small" id="maxw" type="text" inputmode="numeric" placeholder="auto" maxlength="5" aria-describedby="maxw-hint">
+          <span class="px">px</span>
+        </div>
+        <p class="hint" id="maxw-hint">Opcional. Deixe vazio para o site escolher.</p>
+      </div>
+
+      <p class="error" id="error" role="alert" hidden></p>
+      <button class="go" id="go" type="submit" disabled>Comprimir</button>
+    </form>
+
+    <!-- Trabalhando -->
+    <section class="working" id="working">
+      <p class="status" id="status" role="status" aria-live="polite">Procurando a melhor combinação…</p>
+      <div class="thread" aria-hidden="true"><i></i></div>
+      <button type="button" class="link" id="cancel">Cancelar</button>
+    </section>
+
+    <!-- Resultado -->
+    <section class="result" id="result">
+      <div class="pair">
+        <figure>
+          <div class="arch"><img id="img-before" alt="GIF original"></div>
+          <figcaption>
+            <span class="cap-name">Antes</span>
+            <span class="cap-size" id="before-size"></span>
+            <span class="cap-dim" id="before-dim"></span>
+          </figcaption>
+        </figure>
+        <figure>
+          <div class="arch lit"><img id="img-after" alt="GIF comprimido"></div>
+          <figcaption>
+            <span class="cap-name">Depois</span>
+            <span class="cap-size" id="after-size"></span>
+            <span class="cap-dim" id="after-dim"></span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="summary">
+        <h2 id="summary-title"></h2>
+        <p id="summary-note"></p>
+        <a class="go" id="download" href="#" download>Baixar GIF</a>
+        <div class="again">
+          <button type="button" class="link" id="again">Comprimir de novo com outro tamanho</button>
+          <button type="button" class="link" id="other">Escolher outro GIF</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Tudo acontece no seu aparelho: o GIF não é enviado para lugar nenhum.</p>
+    <p class="fine">Feito com <a href="https://www.lcdf.org/gifsicle/" target="_blank" rel="noopener">gifsicle</a>.</p>
+  </footer>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
