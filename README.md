@@ -29,12 +29,6 @@ python3 -m http.server 8000
 e abrir http://localhost:8000. (Abrir o `index.html` direto do arquivo não funciona, porque o site
 usa módulos JavaScript.)
 
-## Publicar na Vercel
-
-1. Em vercel.com, clique em **Add New → Project** e importe este repositório.
-2. Deixe **Framework Preset** em *Other* e **não** preencha Build Command nem Output Directory.
-3. Clique em **Deploy**.
-
 ## Arquivos
 
 - `index.html`, `style.css`, `app.js`: o site
